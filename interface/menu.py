@@ -1,5 +1,5 @@
-# ━┃
-import os
+from service.heuristics import *
+from interface.inputs import *
 
 class Menu:
     def __init__(self):
@@ -26,7 +26,29 @@ class Menu:
 
     @staticmethod
     def play():
+        human_mills = 0
+        ai_mills = 0
+
+        #init board
+        board = Board()
         player = choose_player()
+        if player is "W":
+            for i in range(9):
+                print(board)
+                while True:
+                    position = position_input("INIT")
+                    if board.dict[position].middle is "O":
+                        break
+                    print("Odabrano polje je već zauzeto.")
+                board.dict[position].middle = player
+                new_human_mills = count_player_mill(player, board)
+                if new_human_mills > human_mills:
+                    while True:
+                        mill = position_input("MILL")
+                        if board.dict[mill].middle not in [player, "O"]:
+                            if is_in_mill(mill, player, board):
+                                print("Odabrana figura je u mici.")
+                            board.dict[mill].middle = "O"
 
 
 
@@ -57,9 +79,6 @@ def choose_player():
             print("{0} nije validan izbor.".format(choice))
 
 
-def cls():
-    """Clears the terminal screen depending on the OS."""
-    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 if __name__ == "__main__":
