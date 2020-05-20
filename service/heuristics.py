@@ -1,10 +1,9 @@
 from modules.board import Board
 
+
 def diff_mills_and_two(player, board):
     mill_difference = 0
     two_difference = 0
-    human_mill = 0
-    ai_mill = 0
     horizontal_mills = ["A4", "B4", "C4", "D2", "D6", "E4", "F4", "G4"]
     vertical_mills = ["B4", "D1", "D2", "D3", "D5", "D6", "D7", "F4"]
     for key in horizontal_mills[:]:
@@ -13,7 +12,6 @@ def diff_mills_and_two(player, board):
             if board.dict[key].left.middle is player and board.dict[key].right.middle is player:
                 two_difference += 1
                 mill_difference += 1
-                human_mill += 1
             horizontal_mills.remove(key)
     for key in vertical_mills[:]:
         if board.dict[key].middle is player and (board.dict[key].up.middle is player or board.dict[key].down.middle is player):
@@ -21,23 +19,20 @@ def diff_mills_and_two(player, board):
             if board.dict[key].up.middle is player and board.dict[key].down.middle is player:
                 two_difference += 1
                 mill_difference += 1
-                human_mill += 1
             vertical_mills.remove(key)
     for key in horizontal_mills:
-        if not (board.dict[key].middle is [player, "O"] and (board.dict[key].left.middle is [player, "O"] or board.dict[key].right.middle is [player, "O"])):
+        if not (board.dict[key].middle in [player, "O"] and (board.dict[key].left.middle in [player, "O"] or board.dict[key].right.middle in [player, "O"])):
             two_difference -= 1
-            if not (board.dict[key].left.middle is [player, "O"] and board.dict[key].right.middle is [player, "O"]):
+            if not (board.dict[key].left.middle in [player, "O"] and board.dict[key].right.middle is [player, "O"]):
                 two_difference -= 1
                 mill_difference -= 1
-                ai_mill += 1
     for key in vertical_mills:
-        if not (board.dict[key].middle is [player, "O"] and (board.dict[key].up.middle is [player, "O"] and board.dict[key].down.middle is [player, "O"])):
+        if not (board.dict[key].middle in [player, "O"] and (board.dict[key].up.middle in [player, "O"] and board.dict[key].down.middle in [player, "O"])):
             two_difference -= 1
-            if not (board.dict[key].up.middle is [player, "O"] and board.dict[key].down.middle is [player, "O"]):
+            if not (board.dict[key].up.middle in [player, "O"] and board.dict[key].down.middle in [player, "O"]):
                 two_difference -= 1
                 mill_difference -= 1
-                ai_mill += 1
-    return mill_difference, human_mill, ai_mill, two_difference
+    return mill_difference, two_difference
 
 
 def count_player_mill(player, board):
@@ -57,15 +52,15 @@ def count_player_mill(player, board):
 
 def diff_pieces_blocked(player, board):
     blocked_difference = 0
-    human = 0
-    human_blocked = 0
-    enemy = 0
-    enemy_blocked = 0
+    playa = 0
+    playa_blocked = 0
+    opponent = 0
+    opponent_blocked = 0
     win = 0
 
     for field in board.dict.values():
         if field.middle not in [player, "O"]:
-            enemy += 1
+            opponent += 1
             if field.up:
                 if field.up.middle is "O":
                     continue
@@ -78,11 +73,11 @@ def diff_pieces_blocked(player, board):
             if field.right:
                 if field.right.middle is "O":
                     continue
-            enemy_blocked += 1
+            opponent_blocked += 1
             blocked_difference += 1
 
         elif field.middle is player:
-            human += 1
+            playa += 1
             if field.up:
                 if field.up.middle is "O":
                     continue
@@ -95,14 +90,14 @@ def diff_pieces_blocked(player, board):
             if field.right:
                 if field.right.middle is "O":
                     continue
-            human_blocked += 1
+            playa_blocked += 1
             blocked_difference -= 1
-    piece_difference = player - enemy
-    if enemy is enemy_blocked:
+    piece_difference = playa - opponent
+    if opponent is opponent_blocked:
         win += 1
-    elif player is human_blocked:
+    elif player is playa_blocked:
         win -= 1
-    if enemy is 2:
+    if opponent is 2:
         win += 1
     elif player is 2:
         win -= 1
@@ -192,44 +187,36 @@ def diff_double_three(player, board):
 
     return double_difference, three_difference
 
-def is_in_mill(mill, player, board):
-    vertical = 0
-    horizontal = 0
-    if board.dict[mill].up:
-        if board.dict[mill].up.middle not in [player, "O"]:
-            vertical += 1
-            if board.dict[mill].up.up:
-                if board.dict[mill].up.up.middle not in [player, "O"]:
-                    return True
-    if board.dict[mill].down:
-        if board.dict[mill].down.middle not in [player, "O"]:
-            vertical += 1
-            if board.dict[mill].down.down:
-                if board.dict[mill].down.down.middle not in [player, "O"]:
-                    return True
-    if vertical is 2:
-        return True
-    if board.dict[mill].left:
-        if board.dict[mill].left.middle not in [player, "O"]:
-            horizontal += 1
-            if board.dict[mill].left.left:
-                if board.dict[mill].left.left.middle not in [player, "O"]:
-                    return True
-    if board.dict[mill].right:
-        if board.dict[mill].right.middle not in [player, "O"]:
-            horizontal += 1
-            if board.dict[mill].right.right:
-                if board.dict[mill].right.right.middle not in [player, "O"]:
-                    return True
-    if horizontal is 2:
-        return True
-    return False
+
+def count_pieces(board, player):
+    playa = 0
+    opponent = 0
+
+    for field in board.value.dict.keys():
+        if board.value.dict[field] is player:
+            playa += 1
+        elif board.value.dict[field] not in [player, "O"]:
+            opponent += 1
+    return playa, opponent
 
 
+def closed_mill(board, player):
+    old_playa, old_opponent= count_pieces(board.parent, player)
+    playa, opponent = count_pieces(board, player)
+
+    if old_playa is (playa+1):
+        return -1
+    elif old_opponent is (opponent+1):
+        return 1
+    else:
+        return 0
 
 
-
-
-
-
+def heuristic(board, player, is_stage1):
+    closed = closed_mill(board, player)
+    if is_stage1:
+        mill_diff, two_diff = diff_mills_and_two(player, board.value)
+        piece_diff, blocked_diff, _ = diff_pieces_blocked(player, board.value)
+        _, three_diff = diff_double_three(player, board.value)
+        return 18*closed + 26*mill_diff + blocked_diff + 9*piece_diff + 10*two_diff + 7*three_diff
 

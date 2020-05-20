@@ -1,5 +1,7 @@
-from service.heuristics import *
+from modules.board import Board
+from service.minimax import *
 from interface.inputs import *
+import time
 
 class Menu:
     def __init__(self):
@@ -10,7 +12,7 @@ class Menu:
 
     @staticmethod
     def display_menu():
-        print("1. Izaberite igrača\n"
+        print("1. Počnite igru\n"
               "2. Izlazak iz programa")
 
     def run(self):
@@ -26,29 +28,37 @@ class Menu:
 
     @staticmethod
     def play():
-        human_mills = 0
-        ai_mills = 0
-
+        alpha = float("-inf")
+        beta = float("inf")
         #init board
         board = Board()
-        player = choose_player()
-        if player is "W":
-            for i in range(9):
-                print(board)
+        board = Tree(board)
+        print(board.value)
+        for i in range(9):
+            while True:
+                position = position_input("Postavite 'W'")
+                if board.value.dict[position].middle is "O":
+                    break
+                print("Odabrano polje je već zauzeto.")
+            board.value.dict[position].middle = "W"
+            if is_in_mill(position, "W", board.value):
+                print(board.value)
                 while True:
-                    position = position_input("INIT")
-                    if board.dict[position].middle is "O":
+                    mill = position_input("Uklonite 'B'")
+                    if board.value.dict[mill].middle is "B":
+                        if is_in_mill(mill, "B", board.value):
+                            print("Odabrana figura je u mici.")
+                        board.value.dict[mill].middle = "O"
                         break
-                    print("Odabrano polje je već zauzeto.")
-                board.dict[position].middle = player
-                new_human_mills = count_player_mill(player, board)
-                if new_human_mills > human_mills:
-                    while True:
-                        mill = position_input("MILL")
-                        if board.dict[mill].middle not in [player, "O"]:
-                            if is_in_mill(mill, player, board):
-                                print("Odabrana figura je u mici.")
-                            board.dict[mill].middle = "O"
+                    print("Niste odabrali polje na kojem je 'B'.")
+
+            start = time.time()
+            best_move = minimaxAB(board, 3, True, alpha, beta, True)
+            end = time.time()
+            board = best_move.board
+            print(board.value)
+            print("Potez obavljen: " + str(end - start))
+
 
 
 
@@ -57,28 +67,6 @@ class Menu:
     def quit_app():
         print("Izlazak iz programa.")
         quit()
-
-
-def print_choices():
-    print("1. W (prvi)\n"
-          "2. B (drugi)")
-
-
-def choose_player():
-    choices = {
-        "1": "W",
-        "2": "B",
-    }
-    while True:
-        print_choices()
-        choice = input("Izaberite opciju: ")
-        player = choices.get(choice)
-        if player:
-            return player
-        else:
-            print("{0} nije validan izbor.".format(choice))
-
-
 
 
 if __name__ == "__main__":

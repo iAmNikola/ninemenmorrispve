@@ -40,7 +40,7 @@ class Board:
                      "D1": self.f8, "D2": self.f16, "D3": self.f24, "D5": self.f20, "D6": self.f12, "D7": self.f4,
                      "E3": self.f23, "E4": self.f22, "E5": self.f21,
                      "F2": self.f15, "F4": self.f14, "F6": self.f13,
-                     "G1": self.f7, "G4": self.f8, "G7": self.f5}
+                     "G1": self.f7, "G4": self.f6, "G7": self.f5}
 
     def __str__(self):
         board = "  1  2  3  4  5  6  7\n" \
@@ -50,14 +50,16 @@ class Board:
                 "D {}━━{}━━{}     {}━━{}━━{}\n" \
                 "E ┃  ┃  {}━━{}━━{}  ┃  ┃\n" \
                 "F ┃  {}━━━━━{}━━━━━{}  ┃\n" \
-                "G {}━━━━━━━━{}━━━━━━━━{}".format(self.f1.middle, self.f2.middle, self.f3.middle, self.f9.middle,
-                                                  self.f10.middle, self.f11.middle, self.f17.middle, self.f18.middle,
-                                                  self.f19.middle, self.f8.middle, self.f16.middle, self.f24.middle,
-                                                  self.f20.middle, self.f12.middle, self.f4.middle, self.f23.middle,
-                                                  self.f22.middle, self.f21.middle, self.f15.middle, self.f14.middle,
-                                                  self.f13.middle, self.f7.middle, self.f6.middle, self.f5.middle)
+                "G {}━━━━━━━━{}━━━━━━━━{}".format(self.dict["A1"].middle, self.dict["A4"].middle, self.dict["A7"].middle, self.dict["B2"].middle,
+                                                  self.dict["B4"].middle, self.dict["B6"].middle, self.dict["C3"].middle, self.dict["C4"].middle,
+                                                  self.dict["C5"].middle, self.dict["D1"].middle, self.dict["D2"].middle, self.dict["D3"].middle,
+                                                  self.dict["D5"].middle, self.dict["D6"].middle, self.dict["D7"].middle, self.dict["E3"].middle,
+                                                  self.dict["E4"].middle, self.dict["E5"].middle, self.dict["F2"].middle, self.dict["F4"].middle,
+                                                  self.dict["F6"].middle, self.dict["G1"].middle, self.dict["G4"].middle, self.dict["G7"].middle)
         return board
 
 
 if __name__ == '__main__':
     print(Board())
+    print(Board())
+
