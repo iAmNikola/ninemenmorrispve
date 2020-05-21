@@ -193,15 +193,15 @@ def count_pieces(board, player):
     opponent = 0
 
     for field in board.value.dict.keys():
-        if board.value.dict[field] is player:
+        if board.value.dict[field].middle is player:
             playa += 1
-        elif board.value.dict[field] not in [player, "O"]:
+        elif board.value.dict[field].middle not in [player, "O"]:
             opponent += 1
     return playa, opponent
 
 
 def closed_mill(board, player):
-    old_playa, old_opponent= count_pieces(board.parent, player)
+    old_playa, old_opponent = count_pieces(board.parent, player)
     playa, opponent = count_pieces(board, player)
 
     if old_playa is (playa+1):
@@ -223,7 +223,7 @@ def heuristic(board, player, stage):
         mill_diff, _ = diff_mills_and_two(player, board.value)
         piece_diff, blocked_diff, win, _, _ = diff_pieces_blocked(player, board.value)
         double_diff, _ = diff_double_three(player, board.value)
-        return 14*closed + 43*mill_diff + 8*blocked_diff + 8*piece_diff + 42*double_diff + 1086*win
+        return 14*closed + 43*mill_diff + 10*blocked_diff + 8*piece_diff + 42*double_diff + 1086*win
     else:
         playa, opponent = count_pieces(board, player)
         _, two_diff = diff_mills_and_two(player, board.value)

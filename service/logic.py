@@ -91,7 +91,7 @@ def stage3_moves(board, player):
             playa += 1
     for field in board.value.dict.keys():
         if board.value.dict[field].middle is player:
-            if playa is 3:
+            if playa == 3:
                 for pos in board.value.dict.keys():
                     if board.value.dict[pos].middle is "O":
                         board_clone = deepcopy(board.value)
@@ -110,7 +110,7 @@ def stage3_moves(board, player):
                         board_clone = Tree(board_clone, board)
                         board_clone.value.dict[field].middle = "O"
                         board_clone.value.dict[cord].middle = player
-                        if is_in_mill(pos, player, board_clone.value):
+                        if is_in_mill(cord, player, board_clone.value):
                             boards = remove_piece(board_clone, boards, opponent)
                         else:
                             boards.append(board_clone)
