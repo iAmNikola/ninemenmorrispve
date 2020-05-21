@@ -95,14 +95,14 @@ def diff_pieces_blocked(player, board):
     piece_difference = playa - opponent
     if opponent is opponent_blocked:
         win += 1
-    elif player is playa_blocked:
+    elif playa is playa_blocked:
         win -= 1
     if opponent is 2:
         win += 1
-    elif player is 2:
+    elif playa is 2:
         win -= 1
 
-    return piece_difference, blocked_difference, win
+    return piece_difference, blocked_difference, win, playa, opponent
 
 
 def diff_double_three(player, board):
@@ -212,11 +212,35 @@ def closed_mill(board, player):
         return 0
 
 
-def heuristic(board, player, is_stage1):
+def heuristic(board, player, stage):
     closed = closed_mill(board, player)
-    if is_stage1:
+    if stage is 1:
         mill_diff, two_diff = diff_mills_and_two(player, board.value)
-        piece_diff, blocked_diff, _ = diff_pieces_blocked(player, board.value)
+        piece_diff, blocked_diff, _, _, _ = diff_pieces_blocked(player, board.value)
         _, three_diff = diff_double_three(player, board.value)
         return 18*closed + 26*mill_diff + blocked_diff + 9*piece_diff + 10*two_diff + 7*three_diff
+    elif stage is 2:
+        mill_diff, _ = diff_mills_and_two(player, board.value)
+        piece_diff, blocked_diff, win, _, _ = diff_pieces_blocked(player, board.value)
+        double_diff, _ = diff_double_three(player, board.value)
+        return 14*closed + 43*mill_diff + 8*blocked_diff + 8*piece_diff + 42*double_diff + 1086*win
+    else:
+        playa, opponent = count_pieces(board, player)
+        _, two_diff = diff_mills_and_two(player, board.value)
+        _, three_diff = diff_double_three(player, board.value)
+        if playa is 2:
+            win = -1
+        elif opponent is 2:
+            win = 1
+        else:
+            win = 0
+        return 16*closed + 10*two_diff + three_diff + 1190*win
 
+
+if __name__ == '__main__':
+    board = Board()
+    _, _, win, human, ai = diff_pieces_blocked("W", board)
+    if win is -1:
+        print("Izgubili ste!")
+        exit()
+    print("no.")

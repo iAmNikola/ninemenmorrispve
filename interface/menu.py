@@ -1,3 +1,5 @@
+
+from service.heuristics import *
 from modules.board import Board
 from service.minimax import *
 from interface.inputs import *
@@ -34,6 +36,7 @@ class Menu:
         board = Board()
         board = Tree(board)
         print(board.value)
+        # stage 1
         for i in range(9):
             while True:
                 position = position_input("Postavite 'W'")
@@ -48,19 +51,73 @@ class Menu:
                     if board.value.dict[mill].middle is "B":
                         if is_in_mill(mill, "B", board.value):
                             print("Odabrana figura je u mici.")
+                            continue
                         board.value.dict[mill].middle = "O"
                         break
                     print("Niste odabrali polje na kojem je 'B'.")
 
             start = time.time()
-            best_move = minimaxAB(board, 3, True, alpha, beta, True)
+            best_move = minimaxAB(board, 3, True, alpha, beta, 1)
             end = time.time()
             board = best_move.board
             print(board.value)
-            print("Potez obavljen: " + str(end - start))
+            print("Vreme izvršavanja: " + str(end - start))
 
-
-
+        # stage 2 and 3
+        stage3 = False
+        human, ai = count_pieces(board, "W")
+        while True:
+            while True:
+                cords = move_position_input()
+                if board.value.dict[cords[0]].middle is "W":
+                    if human is 3 or adjacent(cords):
+                        if board.value.dict[cords[1]].middle is "O":
+                            break
+                        else:
+                            print("Odabrano polje je već zauzeto.")
+                    else:
+                        print("Unešene koordinate nisu susedne.")
+                else:
+                    print("Niste odabrali polje na kojem je 'W'.")
+            board.value.dict[cords[0]].middle = "O"
+            board.value.dict[cords[1]].middle = "W"
+            if is_in_mill(cords[1], "W", board.value):
+                print(board.value)
+                while True:
+                    mill = position_input("Uklonite 'B'")
+                    if board.value.dict[mill].middle is "B":
+                        if is_in_mill(mill, "B", board.value):
+                            print("Odabrana figura je u mici.")
+                            continue
+                        board.value.dict[mill].middle = "O"
+                        break
+                    print("Niste odabrali polje na kojem je 'B'.")
+                _,_,win,human, ai = diff_pieces_blocked("W", board.value)
+                if win is 1:
+                    print("Pobedili ste!")
+                    exit()
+                if stage3:
+                    if human is ai:
+                        print("Nerešeno")
+                        exit()
+            if stage3:
+                start = time.time()
+                best_move = minimaxAB(board, 1, True, alpha, beta, 3)
+            else:
+                start = time.time()
+                best_move = minimaxAB(board, 4, True, alpha, beta, 2)
+            end = time.time()
+            board = best_move.board
+            print(board.value)
+            print("Vreme izvršavanja: " + str(end - start))
+            _, _, win, human, ai = diff_pieces_blocked("W", board.value)
+            if win is -1:
+                print("Izgubili ste!")
+                exit()
+            if stage3:
+                if human is ai:
+                    print("Nerešeno")
+                    exit()
 
 
     @staticmethod
