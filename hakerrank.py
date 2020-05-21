@@ -534,7 +534,7 @@ def heuristic(board, player, stage):
         mill_diff, _ = diff_mills_and_two(player, board.value)
         piece_diff, blocked_diff, win, _, _ = diff_pieces_blocked(player, board.value)
         double_diff, _ = diff_double_three(player, board.value)
-        return 14*closed + 43*mill_diff + 8*blocked_diff + 8*piece_diff + 42*double_diff + 1086*win
+        return 14*closed + 43*mill_diff + 8*blocked_diff + 11*piece_diff + 42*double_diff + 1086*win
     else:
         playa, opponent = count_pieces(board, player)
         _, two_diff = diff_mills_and_two(player, board.value)
