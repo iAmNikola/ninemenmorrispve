@@ -63,6 +63,13 @@ class Menu:
             print(board.value)
             print("Vreme izvršavanja: " + str(end - start))
 
+        _, _, win, human, ai = diff_pieces_blocked("W", board.value)
+        if win is 1:
+            print("Pobedili ste!")
+            exit()
+        if win is -1:
+            print("Izgubili ste!")
+            exit()
         # stage 2 and 3
         stage3 = False
         human, ai = count_pieces(board, "W")
@@ -96,6 +103,8 @@ class Menu:
                 if win is 1:
                     print("Pobedili ste!")
                     exit()
+                if ai is 3:
+                    stage3 = True
                 if stage3:
                     if human is ai:
                         print("Nerešeno")

@@ -4,50 +4,44 @@ from modules.board import Board
 def diff_mills_and_two(player, board):
     mill_difference = 0
     two_difference = 0
+    blocked_mill_difference = 0
     horizontal_mills = ["A4", "B4", "C4", "D2", "D6", "E4", "F4", "G4"]
     vertical_mills = ["B4", "D1", "D2", "D3", "D5", "D6", "D7", "F4"]
     for key in horizontal_mills[:]:
         if board.dict[key].middle is player and (board.dict[key].left.middle is player or board.dict[key].right.middle is player):
             two_difference += 1
-            if board.dict[key].left.middle is player and board.dict[key].right.middle is player:
+            if board.dict[key].left.middle not in [player, "O"] or board.dict[key].right.middle not in [player, "O"]:
+                blocked_mill_difference -= 1
+            elif board.dict[key].left.middle is player and board.dict[key].right.middle is player:
                 two_difference += 1
                 mill_difference += 1
             horizontal_mills.remove(key)
     for key in vertical_mills[:]:
         if board.dict[key].middle is player and (board.dict[key].up.middle is player or board.dict[key].down.middle is player):
             two_difference += 1
-            if board.dict[key].up.middle is player and board.dict[key].down.middle is player:
+            if board.dict[key].up.middle not in [player, "O"] or board.dict[key].down.middle not in [player, "O"]:
+                blocked_mill_difference -= 1
+            elif board.dict[key].up.middle is player and board.dict[key].down.middle is player:
                 two_difference += 1
                 mill_difference += 1
             vertical_mills.remove(key)
     for key in horizontal_mills:
         if not (board.dict[key].middle in [player, "O"] and (board.dict[key].left.middle in [player, "O"] or board.dict[key].right.middle in [player, "O"])):
             two_difference -= 1
-            if not (board.dict[key].left.middle in [player, "O"] and board.dict[key].right.middle is [player, "O"]):
+            if board.dict[key].left.middle is player or board.dict[key].right.middle is player:
+                blocked_mill_difference += 1
+            elif not (board.dict[key].left.middle in [player, "O"] and board.dict[key].right.middle is [player, "O"]):
                 two_difference -= 1
                 mill_difference -= 1
     for key in vertical_mills:
         if not (board.dict[key].middle in [player, "O"] and (board.dict[key].up.middle in [player, "O"] and board.dict[key].down.middle in [player, "O"])):
             two_difference -= 1
-            if not (board.dict[key].up.middle in [player, "O"] and board.dict[key].down.middle in [player, "O"]):
+            if board.dict[key].up.middle is player or board.dict[key].down.middle is player:
+                blocked_mill_difference += 1
+            elif not (board.dict[key].up.middle in [player, "O"] and board.dict[key].down.middle in [player, "O"]):
                 two_difference -= 1
                 mill_difference -= 1
-    return mill_difference, two_difference
-
-
-def count_player_mill(player, board):
-    player_mill = 0
-    horizontal_mills = ["A4", "B4", "C4", "D2", "D6", "E4", "F4", "G4"]
-    vertical_mills = ["B4", "D1", "D2", "D3", "D5", "D6", "D7", "F4"]
-
-    for key in horizontal_mills:
-        if board.dict[key].middle is player and board.dict[key].left.middle is player and board.dict[key].right.middle is player:
-            player_mill += 1
-    for key in vertical_mills:
-        if board.dict[key].middle is player and board.dict[key].up.middle is player and board.dict[key].down.middle is player:
-            player_mill += 1
-
-    return player_mill
+    return mill_difference, two_difference, blocked_mill_difference
 
 
 def diff_pieces_blocked(player, board):
@@ -215,18 +209,18 @@ def closed_mill(board, player):
 def heuristic(board, player, stage):
     closed = closed_mill(board, player)
     if stage is 1:
-        mill_diff, two_diff = diff_mills_and_two(player, board.value)
+        mill_diff, two_diff, blocked_mill_diff = diff_mills_and_two(player, board.value)
         piece_diff, blocked_diff, _, _, _ = diff_pieces_blocked(player, board.value)
         _, three_diff = diff_double_three(player, board.value)
-        return 18*closed + 26*mill_diff + blocked_diff + 9*piece_diff + 10*two_diff + 7*three_diff
+        return 18*closed + 26*mill_diff + blocked_diff + 9*piece_diff + 10*two_diff + 7*three_diff + 10*blocked_mill_diff
     elif stage is 2:
-        mill_diff, _ = diff_mills_and_two(player, board.value)
+        mill_diff, _, blocked_mill_diff = diff_mills_and_two(player, board.value)
         piece_diff, blocked_diff, win, _, _ = diff_pieces_blocked(player, board.value)
         double_diff, _ = diff_double_three(player, board.value)
-        return 14*closed + 43*mill_diff + 10*blocked_diff + 8*piece_diff + 42*double_diff + 1086*win
+        return 14*closed + 43*mill_diff + 10*blocked_diff + 8*piece_diff + 42*double_diff + 1086*win + 15*blocked_mill_diff
     else:
         playa, opponent = count_pieces(board, player)
-        _, two_diff = diff_mills_and_two(player, board.value)
+        _, two_diff, blocked_mill_diff = diff_mills_and_two(player, board.value)
         _, three_diff = diff_double_three(player, board.value)
         if playa is 2:
             win = -1
@@ -234,7 +228,7 @@ def heuristic(board, player, stage):
             win = 1
         else:
             win = 0
-        return 16*closed + 10*two_diff + three_diff + 1190*win
+        return 16*closed + 10*two_diff + three_diff + 1190*win + 20*blocked_mill_diff
 
 
 if __name__ == '__main__':
